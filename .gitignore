@@ -1,3 +1,7 @@
+# Ignore all video and audio files
 *.mp4
 *.wav
 *.webm
+
+# Environment Variables
+.env
