@@ -45,16 +45,35 @@ while True:
     if not next_page_token:
         break
 
-video_ids = video_ids[6:-cut_videos]
+video_ids = video_ids[317:-cut_videos]
 # print(video_ids)
 
-# downloading videos
+# Checking streams
+# yt = YouTube(youtube_video_url + video_ids[0])
+# print("ADAPTIVE:\n\n\n")
+# for encoding in yt.streams.filter(adaptive=True):
+#     print(encoding)
+# print("PROGRESSIVE:\n\n\n")
+# for encoding in yt.streams.filter(progressive=True, file_extension='mp4'):
+#     print(encoding)
+
+# downloading videos (PROGRESSIVE ON, ADAPTIVE OFF)
 for video_id in video_ids:
     yt = YouTube(youtube_video_url + video_id)
-    video_stream = yt.streams.filter(file_extension='mp4', adaptive=True, res="720p").order_by('resolution').desc().first()
+    video_stream = yt.streams.filter(file_extension='mp4', progressive=True, res="720p").order_by('resolution').desc().first()
     audio_stream = yt.streams.filter(file_extension='mp4', only_audio=True).order_by('abr').desc().first()
     filename = video_id + ".mp4"
     video_file = video_stream.download(output_path="../data/video/", filename=filename)
     audio_file = audio_stream.download(output_path="../data/audio/", filename=filename)
     print("Video download completed:", video_file)
     print("Audio download completed:", audio_file)
+
+# For only 1080p / 360p videos:
+# yt = YouTube(youtube_video_url + video_ids[0])
+# video_stream = yt.streams.filter(file_extension='mp4', adaptive=True, res="360p").order_by('resolution').desc().first()
+# audio_stream = yt.streams.filter(file_extension='mp4', only_audio=True).order_by('abr').desc().first()
+# filename = video_ids[0] + ".mp4"
+# video_file = video_stream.download(output_path="../data/video/", filename=filename)
+# audio_file = audio_stream.download(output_path="../data/audio/", filename=filename)
+# print("Video download completed:", video_file)
+# print("Audio download completed:", audio_file)
