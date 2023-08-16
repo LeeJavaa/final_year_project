@@ -1,7 +1,10 @@
-# Ignore all video and audio files
-*.mp4
-*.wav
-*.webm
+# Ignore data
+data/
 
 # Environment Variables
 .env
+
+# Virtual Environment Stuff
+Lib/site-packages/
+Scripts/
+pyvenv.cfg
