@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Building API Object
 api_key = os.getenv("API_KEY")
 channel_id = "UCm5mt-A4w61lknZ9lCsZtBw"
 api_service_name = "youtube"
@@ -15,11 +16,7 @@ youtube_video_url = "http://youtube.com/watch?v="
 
 youtube = build(api_service_name, api_version, developerKey=api_key)
 
-# request = youtube.videos().list(
-#     part="snippet, contentDetails, status, player, topicDetails, statistics, id",
-#     id="nl9TZanwbBk"
-# )
-
+# Getting Uploaded Videos Playlist
 request = youtube.channels().list(
     part='contentDetails',
     id=channel_id
@@ -29,6 +26,7 @@ response = request.execute()
 
 playlist_id = response['items'][0]['contentDetails']['relatedPlaylists']['uploads']
 
+# Getting all video IDs of channel
 next_page_token = None
 video_ids = []
 
@@ -47,25 +45,22 @@ while True:
     if not next_page_token:
         break
 
-# video_ids = video_ids[:-31]
-video_ids = video_ids[:200]
-
-
-video_ids_string = ','.join(video_ids)
-
-request = youtube.videos().list(
-    part="snippet,contentDetails,statistics",
-    id=video_ids_string,
-    fields = 'items(id,snippet(publishedAt, title, description),contentDetails.duration, statistics(viewCount, likeCount, commentCount))'
-)
-response = request.execute()
-
-# Serializing json
-json_object = json.dumps(response, indent=4)
-dict = json.loads(json_object)
-df = pd.json_normalize(dict['items'])
-df.to_csv("../data/dataset/api_data.csv")
- 
-# Writing to sample.json
-# with open("output.json", "w") as outfile:
-#     outfile.write(json_object)
+# Split all video IDs into batches of 50, then fetch API data for each video in batch. Thus getting API data for all videos.
+video_ids = video_ids[:-31]
+for i in range(0, len(video_ids), 50):
+    batch = video_ids[i:i+50]
+    batch_string = ','.join(batch)
+    response = youtube.videos().list(
+            part="snippet,contentDetails,statistics",
+            id=batch_string,
+            fields = 'items(id,snippet(publishedAt, title, description),contentDetails.duration, statistics(viewCount, likeCount, commentCount))',
+            maxResults=50,
+            pageToken=next_page_token
+        ).execute()
+    json_object = json.dumps(response, indent=4)
+    dict = json.loads(json_object)
+    df = pd.json_normalize(dict['items'])
+    if os.path.exists("../data/dataset/raw_data.csv"):
+        df.to_csv("../data/dataset/raw_data.csv", mode='a', header=False, index=False)
+    else:
+        df.to_csv("../data/dataset/raw_data.csv", header=True, index=False)
