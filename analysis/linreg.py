@@ -3,31 +3,45 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
-def convert_duration_to_seconds(duration):
-    pattern = r'PT(\d+H)?(\d+M)?(\d+S)?'
-    hours, minutes, seconds = re.match(pattern, duration).groups()
+# def convert_duration_to_seconds(duration):
+#     pattern = r'PT(\d+H)?(\d+M)?(\d+S)?'
+#     hours, minutes, seconds = re.match(pattern, duration).groups()
     
-    total_seconds = 0
-    if hours:
-        total_seconds += int(hours[:-1]) * 3600
-    if minutes:
-        total_seconds += int(minutes[:-1]) * 60
-    if seconds:
-        total_seconds += int(seconds[:-1])
+#     total_seconds = 0
+#     if hours:
+#         total_seconds += int(hours[:-1]) * 3600
+#     if minutes:
+#         total_seconds += int(minutes[:-1]) * 60
+#     if seconds:
+#         total_seconds += int(seconds[:-1])
     
-    return total_seconds
+#     return total_seconds
 
 train_df = pd.read_csv("../data/dataset/train/train_no_transcript.csv")
 validate_df = pd.read_csv("../data/dataset/validation/validation.csv")
+train_audio_df = pd.read_csv("../data/dataset/train/train_audio.csv")
+validate_audio_df = pd.read_csv("../data/dataset/validation/validation_audio.csv")
 
-duration_train = train_df['duration'].apply(convert_duration_to_seconds).values.reshape(-1, 1)
-X_train = train_df[['comments', 'elapsed_weeks']]
-X_train['duration'] = duration_train
+# Merging in audio data
+train_df = train_df.merge(train_audio_df, on='id')
+validate_df = validate_df.merge(validate_audio_df, on='id')
+
+# duration_train = train_df['duration'].apply(convert_duration_to_seconds).values.reshape(-1, 1)
+# X_train = train_df[['comments', 'elapsed_weeks']]
+# X_train['duration'] = duration_train
+# y_train = train_df['likes_per_view']
+# y_train = train_df['views_per_week']
+# duration_validation = validate_df['duration'].apply(convert_duration_to_seconds).values.reshape(-1, 1)
+# X_validate = validate_df[['comments', 'elapsed_weeks']]
+# X_validate['duration'] = duration_validation
+
+# model 3 training and prediction prep
+X_train = train_df[['speech_rate', 'pitch_range']]
 # y_train = train_df['likes_per_view']
 y_train = train_df['views_per_week']
-duration_validation = validate_df['duration'].apply(convert_duration_to_seconds).values.reshape(-1, 1)
-X_validate = validate_df[['comments', 'elapsed_weeks']]
-X_validate['duration'] = duration_validation
+X_validate = validate_df[['speech_rate', 'pitch_range']]
+
+
 
 reg = LinearRegression().fit(X_train, y_train)
 
@@ -51,7 +65,18 @@ print(predictions)
 # linreg_df['likes_per_view_predicted'] = predictions
 # linreg_df['likes_per_view_actual'] = validate_df['likes_per_view']
 # linreg_df.to_csv("../data/dataset/models/linreg/2.csv", header=True, index=False)
-linreg_df = pd.read_csv("../data/dataset/models/linreg/2.csv")
-linreg_df['views_per_week_predicted'] = predictions
-linreg_df['views_per_week_actual'] = validate_df['views_per_week']
-linreg_df.to_csv("../data/dataset/models/linreg/2.csv", header=True, index=False)
+# linreg_df = pd.read_csv("../data/dataset/models/linreg/2.csv")
+# linreg_df['views_per_week_predicted'] = predictions
+# linreg_df['views_per_week_actual'] = validate_df['views_per_week']
+# linreg_df.to_csv("../data/dataset/models/linreg/2.csv", header=True, index=False)
+
+# Model 3
+# linreg_df = pd.DataFrame(columns=['id', 'likes_per_view_predicted', 'likes_per_view_actual'])
+# linreg_df['id'] = validate_df['id']
+# linreg_df['likes_per_view_predicted'] = predictions
+# linreg_df['likes_per_view_actual'] = validate_df['likes_per_view']
+# linreg_df.to_csv("../data/dataset/models/linreg/3.csv", header=True, index=False)
+# linreg_df = pd.read_csv("../data/dataset/models/linreg/3.csv")
+# linreg_df['views_per_week_predicted'] = predictions
+# linreg_df['views_per_week_actual'] = validate_df['views_per_week']
+# linreg_df.to_csv("../data/dataset/models/linreg/3.csv", header=True, index=False)
