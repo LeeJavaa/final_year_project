@@ -19,12 +19,14 @@ from sklearn.linear_model import LinearRegression
 
 train_df = pd.read_csv("../data/dataset/train/train_no_transcript.csv")
 validate_df = pd.read_csv("../data/dataset/validation/validation.csv")
-train_audio_df = pd.read_csv("../data/dataset/train/train_audio.csv")
-validate_audio_df = pd.read_csv("../data/dataset/validation/validation_audio.csv")
+# train_audio_df = pd.read_csv("../data/dataset/train/train_audio.csv")
+# validate_audio_df = pd.read_csv("../data/dataset/validation/validation_audio.csv")
+train_visual_df = pd.read_csv("../data/dataset/train/train_visual.csv")
+validate_visual_df = pd.read_csv("../data/dataset/validation/validation_visual.csv")
 
 # Merging in audio data
-train_df = train_df.merge(train_audio_df, on='id')
-validate_df = validate_df.merge(validate_audio_df, on='id')
+train_df = train_df.merge(train_visual_df, on='id')
+validate_df = validate_df.merge(validate_visual_df, on='id')
 
 # duration_train = train_df['duration'].apply(convert_duration_to_seconds).values.reshape(-1, 1)
 # X_train = train_df[['comments', 'elapsed_weeks']]
@@ -35,11 +37,11 @@ validate_df = validate_df.merge(validate_audio_df, on='id')
 # X_validate = validate_df[['comments', 'elapsed_weeks']]
 # X_validate['duration'] = duration_validation
 
-# model 3 training and prediction prep
-X_train = train_df[['speech_rate', 'pitch_range']]
+# model 4 training and prediction prep
+X_train = train_df['colorfulness'].values.reshape(-1, 1)
 # y_train = train_df['likes_per_view']
 y_train = train_df['views_per_week']
-X_validate = validate_df[['speech_rate', 'pitch_range']]
+X_validate = validate_df['colorfulness'].values.reshape(-1, 1)
 
 
 
@@ -80,3 +82,14 @@ print(predictions)
 # linreg_df['views_per_week_predicted'] = predictions
 # linreg_df['views_per_week_actual'] = validate_df['views_per_week']
 # linreg_df.to_csv("../data/dataset/models/linreg/3.csv", header=True, index=False)
+
+# Model 4
+# linreg_df = pd.DataFrame(columns=['id', 'likes_per_view_predicted', 'likes_per_view_actual'])
+# linreg_df['id'] = validate_df['id']
+# linreg_df['likes_per_view_predicted'] = predictions
+# linreg_df['likes_per_view_actual'] = validate_df['likes_per_view']
+# linreg_df.to_csv("../data/dataset/models/linreg/4.csv", header=True, index=False)
+# linreg_df = pd.read_csv("../data/dataset/models/linreg/4.csv")
+# linreg_df['views_per_week_predicted'] = predictions
+# linreg_df['views_per_week_actual'] = validate_df['views_per_week']
+# linreg_df.to_csv("../data/dataset/models/linreg/4.csv", header=True, index=False)
