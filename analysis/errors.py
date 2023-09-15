@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 # Likes
-df = pd.read_csv("../data/dataset/models/linreg/4.csv")
+df = pd.read_csv("../data/dataset/models/linreg/5.csv")
 
 actual_outputs = df['likes_per_view_actual']*100
 predicted_outputs = df['likes_per_view_predicted']*100
